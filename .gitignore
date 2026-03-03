@@ -1,0 +1,16 @@
+node_modules/
+dist/
+build/
+.venv/
+venv/
+__pycache__/
+*.pyc
+.env
+.DS_Store
+backend/data/
+backend/chroma/
+frontend/dist/
+frontend/node_modules/
+frontend/.vite/
+*.sqlite3
+*.db
