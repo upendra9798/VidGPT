@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YoutuLearn AI - Learn from YouTube with AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .floating-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            animation: float 6s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        .mesh-gradient {
+            background: linear-gradient(45deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            background-size: 200% 200%;
+            animation: gradient 15s ease infinite;
+        }
+        @keyframes gradient {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        .card-flip {
+            perspective: 1000px;
+        }
+        .card-inner {
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+        .card-flip.flipped .card-inner {
+            transform: rotateY(180deg);
+        }
+        .card-front, .card-back {
+            backface-visibility: hidden;
+        }
+        .card-back {
+            transform: rotateY(180deg);
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-white font-sans overflow-x-hidden">
+    <!-- Header -->
+    <header class="sticky top-0 z-50 border-b border-slate-800 bg-slate-950/80 backdrop-blur">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-gradient-to-br from-blue-400 to-purple-500 rounded-lg"></div>
+                <h1 class="text-xl font-bold">YoutuLearn AI</h1>
+            </div>
+            <button onclick="toggleTheme()" class="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700">
+                <span id="theme-icon">🌙</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 py-12">
+        <!-- Hero Section -->
+        <section class="mb-16 text-center">
+            <h2 class="text-5xl font-bold mb-4">Learn Anything from YouTube with AI</h2>
+            <p class="text-xl text-slate-400 mb-8">Process YouTube videos, ask AI questions, generate summaries, quizzes, and study materials</p>
+            <div class="bg-slate-900 rounded-lg p-8 max-w-2xl mx-auto">
+                <input type="text" id="videoUrl" placeholder="Paste YouTube URL here..." 
+                       class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 focus:border-blue-500 focus:outline-none mb-4" />
+                <button onclick="processVideo()" class="w-full px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg font-semibold hover:from-blue-600 hover:to-purple-700 transition">
+                    Process Video
+                </button>
+                <div id="status" class="mt-4 text-sm text-slate-400"></div>
+            </div>
+        </section>
+
+        <!-- Status Alert -->
+        <div id="alertBox" class="hidden mb-8 p-4 bg-red-900/30 border border-red-700 rounded-lg text-red-200"></div>
+
+        <!-- Features Grid -->
+        <section class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
+            <div class="bg-slate-900 rounded-lg p-6 border border-slate-800">
+                <div class="text-3xl mb-3">💬</div>
+                <h3 class="font-semibold mb-2">Chat with Videos</h3>
+                <p class="text-sm text-slate-400">Ask AI questions about video content with timestamped answers</p>
+            </div>
+            <div class="bg-slate-900 rounded-lg p-6 border border-slate-800">
+                <div class="text-3xl mb-3">📝</div>
+                <h3 class="font-semibold mb-2">Summaries & Notes</h3>
+                <p class="text-sm text-slate-400">Generate quick summaries or detailed notes in multiple formats</p>
+            </div>
+            <div class="bg-slate-900 rounded-lg p-6 border border-slate-800">
+                <div class="text-3xl mb-3">🎯</div>
+                <h3 class="font-semibold mb-2">Quizzes & Flashcards</h3>
+                <p class="text-sm text-slate-400">Create interactive quizzes and flashcards for learning</p>
+            </div>
+        </section>
+
+        <!-- API Status -->
+        <section class="bg-slate-900 rounded-lg p-8 border border-slate-800 mb-16">
+            <h3 class="text-xl font-semibold mb-4">API Status</h3>
+            <div id="apiStatus" class="space-y-2">
+                <div class="text-slate-400">Checking backend connection...</div>
+            </div>
+        </section>
+
+        <!-- Chat Demo Section -->
+        <section id="chatSection" class="hidden bg-slate-900 rounded-lg p-8 border border-slate-800 mb-16">
+            <h3 class="text-xl font-semibold mb-4">Chat Demo</h3>
+            <div id="chatMessages" class="space-y-3 mb-4 max-h-96 overflow-y-auto">
+                <div class="bg-slate-800 p-3 rounded-lg">Chat messages will appear here...</div>
+            </div>
+            <div class="flex gap-2">
+                <input type="text" id="chatInput" placeholder="Ask a question about the video..." 
+                       class="flex-1 px-4 py-2 rounded-lg bg-slate-800 border border-slate-700 focus:border-blue-500 focus:outline-none" />
+                <button onclick="sendChat()" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold">Send</button>
+            </div>
+        </section>
+
+        <!-- Info Section -->
+        <section class="bg-slate-800 rounded-lg p-8 text-center">
+            <h3 class="text-2xl font-bold mb-4">Ready to Get Started?</h3>
+            <p class="text-slate-400 mb-6">Paste a YouTube URL above to begin learning with AI.</p>
+            <p class="text-sm text-slate-500">YoutuLearn AI • Built with FastAPI, React, and ChromaDB • Powered by Groq LLM</p>
+        </section>
+    </main>
+
+    <script>
+        const API_URL = 'http://localhost:8000';
+        let currentVideoId = null;
+
+        // Check API status on load
+        window.addEventListener('load', checkApiStatus);
+
+        async function checkApiStatus() {
+            try {
+                const response = await fetch(`${API_URL}/health`);
+                const data = await response.json();
+                document.getElementById('apiStatus').innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                        <span class="text-green-400">Backend running ✓</span>
+                    </div>
+                    <div class="text-sm text-slate-400 mt-2">${data.name || 'YoutuLearn API'} - Version ${data.version || '1.0'}</div>
+                `;
+            } catch (error) {
+                document.getElementById('apiStatus').innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <div class="w-2 h-2 bg-red-500 rounded-full"></div>
+                        <span class="text-red-400">Backend not connected</span>
+                    </div>
+                    <div class="text-sm text-slate-400 mt-2">Make sure the backend is running on port 8000</div>
+                `;
+            }
+        }
+
+        async function processVideo() {
+            const url = document.getElementById('videoUrl').value;
+            if (!url) {
+                showAlert('Please enter a YouTube URL');
+                return;
+            }
+
+            const status = document.getElementById('status');
+            status.textContent = 'Processing video...';
+
+            try {
+                const response = await fetch(`${API_URL}/process-video`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url })
+                });
+
+                if (!response.ok) throw new Error(`API error: ${response.status}`);
+                
+                const data = await response.json();
+                currentVideoId = data.video?.video_id;
+                
+                status.innerHTML = `
+                    <div class="text-green-400">✓ Video processed successfully!</div>
+                    <div class="text-sm mt-2">Title: ${data.video?.title || 'Unknown title'}</div>
+                    <div class="text-sm">Duration: ${Math.round((data.video?.duration || 0) / 60)} minutes</div>
+                    <div class="text-sm">Chunks: ${data.chunk_count}</div>
+                `;
+                
+                document.getElementById('chatSection').classList.remove('hidden');
+            } catch (error) {
+                showAlert(`Error: ${error.message}`);
+                status.textContent = '';
+            }
+        }
+
+        async function sendChat() {
+            if (!currentVideoId) {
+                showAlert('Please process a video first');
+                return;
+            }
+
+            const input = document.getElementById('chatInput');
+            const question = input.value;
+            if (!question) return;
+
+            input.value = '';
+            const chatMessages = document.getElementById('chatMessages');
+            chatMessages.innerHTML += `<div class="bg-blue-900 p-3 rounded-lg text-right">You: ${question}</div>`;
+
+            try {
+                const response = await fetch(`${API_URL}/chat`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        question, 
+                        video_id: currentVideoId,
+                        stream: true,
+                        conversation_id: null
+                    })
+                });
+
+                if (!response.ok) throw new Error(`API error: ${response.status}`);
+                
+                // Handle streaming response
+                const reader = response.body.getReader();
+                let answer = '';
+                
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    
+                    const chunk = new TextDecoder().decode(value);
+                    const lines = chunk.split('\n');
+                    
+                    for (const line of lines) {
+                        if (line.startsWith('data: ')) {
+                            try {
+                                const json = JSON.parse(line.slice(6));
+                                if (json.type === 'token') {
+                                    answer += json.content;
+                                }
+                            } catch (e) {}
+                        }
+                    }
+                }
+                
+                if (answer) {
+                    chatMessages.innerHTML += `<div class="bg-slate-800 p-3 rounded-lg">AI: ${answer}</div>`;
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                }
+            } catch (error) {
+                chatMessages.innerHTML += `<div class="bg-red-900 p-3 rounded-lg">Error: ${error.message}</div>`;
+            }
+        }
+
+        function showAlert(message) {
+            const alertBox = document.getElementById('alertBox');
+            alertBox.textContent = message;
+            alertBox.classList.remove('hidden');
+            setTimeout(() => alertBox.classList.add('hidden'), 5000);
+        }
+
+        function toggleTheme() {
+            document.documentElement.classList.toggle('dark');
+            const icon = document.getElementById('theme-icon');
+            icon.textContent = document.documentElement.classList.contains('dark') ? '☀️' : '🌙';
+        }
+    </script>
+</body>
+</html>
